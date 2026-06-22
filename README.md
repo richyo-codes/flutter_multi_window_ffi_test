@@ -1,6 +1,13 @@
 # flutter_multi_window_ffi_test
 
-A new Flutter project.
+This sample demonstrates Flutter Linux multi-window and popup behavior using
+native GTK APIs through Dart FFI. It is intended to exercise both GTK3 and
+GTK4 runners, including API branches needed because GTK4 changed several
+windowing APIs around its post-Wayland model.
+
+The popup path has been validated with both GTK3 and GTK4 native APIs. The GTK
+variant check is intentionally local to this demo; Flutter should eventually
+expose a better Linux GTK variant/version API for app and package code.
 
 ## Getting Started
 

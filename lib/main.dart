@@ -45,6 +45,13 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+// This demo uses the tool-injected GTK variant Dart define to choose between
+// native GTK APIs that changed in GTK4, largely reflecting GTK4's
+// post-Wayland windowing model. This is intentionally a lightweight FFI
+// sample hack; Flutter should eventually expose a better Linux GTK
+// variant/version API for app and package code.
+const bool _isGtk4 = String.fromEnvironment('FLUTTER_LINUX_GTK') == 'gtk4';
+
 class GtkWidget {
   final Pointer pointer;
 
@@ -52,8 +59,16 @@ class GtkWidget {
 
   @Native<Void Function(Pointer)>(symbol: 'gtk_widget_show')
   external static void _gtkWidgetShow(Pointer widget);
+
+  @Native<Void Function(Pointer, Bool)>(symbol: 'gtk_widget_set_visible')
+  external static void _gtkWidgetSetVisible(Pointer widget, bool visible);
+
   void show() {
-    _gtkWidgetShow(pointer);
+    if (_isGtk4) {
+      _gtkWidgetSetVisible(pointer, true);
+    } else {
+      _gtkWidgetShow(pointer);
+    }
   }
 
   @Native<Void Function(Pointer)>(symbol: 'gtk_widget_destroy')
@@ -71,8 +86,16 @@ class GtkWindow extends GtkWidget {
 
   @Native<Void Function(Pointer, Pointer)>(symbol: 'gtk_container_add')
   external static void _gtkContainerAdd(Pointer container, Pointer child);
+
+  @Native<Void Function(Pointer, Pointer)>(symbol: 'gtk_window_set_child')
+  external static void _gtkWindowSetChild(Pointer window, Pointer child);
+
   void add(GtkWidget child) {
-    _gtkContainerAdd(pointer, child.pointer);
+    if (_isGtk4) {
+      _gtkWindowSetChild(pointer, child.pointer);
+    } else {
+      _gtkContainerAdd(pointer, child.pointer);
+    }
   }
 
   @Native<Void Function(Pointer)>(symbol: 'gtk_window_present')
